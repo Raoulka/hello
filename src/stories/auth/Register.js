@@ -55,7 +55,7 @@ class Register extends Component{
             this.setState({
                 errors: {
                     ...this.state.errors,
-                    cognito: error
+                    cognito: err
                 }
             })
         }

@@ -1,11 +1,23 @@
 import React, { Component } from 'react';
+import { Auth } from 'aws-amplify';
 export default class NavigationBar extends Component {
+
+    handleLogOut = async event => {
+        event.preventDefault();
+        try {
+          Auth.signOut();
+          this.props.auth.setAuthStatus(false);
+          this.props.auth.setUser(null);
+        }catch(error) {
+          console.log(error.message);
+        }
+      }
     render(){
         return(
             <nav className = "navbar" role = "navigation" aria-label = "main navigation">
                 <div className = "navbar-brand">
                     <a className = "navbar-item" href = "/">
-                        <img src = "gd.jpg" width = "170" height = "50" alt = "grid logo" />
+                        <img src = "gd.jpg" width = "112" height = "25" alt = "grid" />
                     </a>
                 </div>
 
@@ -22,15 +34,29 @@ export default class NavigationBar extends Component {
 
                     <div className = "navbar-end">
                         <div className = "navbar-item">
+                            {this.props.auth.isAuthenticated && this.props.auth.user && (
+                                <p>
+                                     Hello {this.props.auth.user.username}
+                                </p>
+                            )}
                             <div className = "buttons">
-                                <a href = "/register" className = "button is-primary">
-                                    <strong>
-                                        Register
-                                    </strong>
-                                </a>
-                                <a href = "/login" className = "button is-light">
-                                    Log in
-                                </a>
+                                {!this.props.auth.isAuthenticated && (
+                                    <div>
+                                        <a href = "/register" className = "button is-primary">
+                                            <strong>
+                                                Register
+                                            </strong>
+                                        </a>
+                                        <a href = "/login" className = "button is-light">
+                                            Log in
+                                        </a>
+                                    </div>
+                                )}  
+                                {this.props.auth.isAuthenticated && (
+                                    <a href="/" onClick={this.handleLogOut} className="button is-light">
+                                        Log out
+                                    </a>
+                                )}
                             </div>
                         </div>
                     </div>

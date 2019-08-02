@@ -9,6 +9,7 @@ import LogIn from './stories/auth/LogIn';
 import { Auth } from 'aws-amplify';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import Welcome from './stories/auth/Welcome';
 library.add(faEdit);
 
 
@@ -39,7 +40,6 @@ class App extends Component{
         console.log(error);
       }
     }
-  
     this.setState({ isAuthenticating: false });
   }
   render(){
@@ -56,9 +56,10 @@ class App extends Component{
           <div>
             <NavigationBar auth = {authProps}/>
             <Switch>
-              <Route exact path = "/" component = {Home} />
-              <Route exact path = "/register" component = {Register} />
-              <Route exact path = "/login" component = {LogIn} />
+              <Route exact path = "/" render = {(props) => <Home {...props} auth = {authProps}/>}/>
+              <Route exact path = "/register" render = {(props) => <Register {...props} auth = {authProps} />} />
+              <Route exact path = "/login" render = {(props) => <LogIn {...props} auth = { authProps } />} />
+              <Route exact path = "/welcome" render = { (props) => <Welcome {...props} auth = {authProps} />} />   
             </Switch>
           </div>
         </Router>
