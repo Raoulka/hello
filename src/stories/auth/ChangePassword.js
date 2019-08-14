@@ -1,17 +1,12 @@
 import React, { Component } from 'react';
 import FormErrors from '../FormErrors';
 import Validate from '../utility/FormValidation';
-// import {connect} from 'react-redux';
 import { Auth } from 'aws-amplify';
-import { userPostFetch } from '../auth/Action';
-// import decode from "jwt-decode";
-// import console = require('console');
 
-class Register extends Component {
+class ChangePassword extends Component {
   state = {
-    username: '',
-    email: '',
-    password: '',
+    oldpassword: '',
+    newpassword: '',
     confirmpassword: '',
     errors: {
       cognito: null,
@@ -33,6 +28,7 @@ class Register extends Component {
   handleSubmit = async event => {
     event.preventDefault();
 
+    // Form validation
     this.clearErrorState();
     const error = Validate(event, this.state);
     if (error) {
@@ -40,29 +36,25 @@ class Register extends Component {
         errors: { ...this.state.errors, ...error }
       });
     }
-    //AWS cognito integration here
-    const { username, email, password } = this.state;
+
+    // AWS Cognito integration here
     try {
-      const signUpResponse = await Auth.signUp({
-        username,
-        password,
-        attributes: {
-          email: email
-        }
-      });
-      this.props.history.push('/welcome');
-      console.log(signUpResponse);
+      const user = await Auth.currentAuthenticatedUser();
+      console.log(user);
+      await Auth.changePassword(
+        user,
+        this.state.oldpassword,
+        this.state.newpassword
+      );
+      this.props.history.push('/changepasswordconfirmation');
     } catch (error) {
       let err = null;
       !error.message ? (err = { message: error }) : (err = error);
       this.setState({
-        errors: {
-          ...this.state.errors,
-          cognito: err
-        }
+        errors: { ...this.state.errors, cognito: err }
       });
+      console.log(err);
     }
-    // this.props.userPostFetch(this.state)
   };
 
   onInputChange = event => {
@@ -76,36 +68,22 @@ class Register extends Component {
     return (
       <section className="section auth">
         <div className="container">
-          <h1>Register</h1>
+          <h1>Change Password</h1>
           <FormErrors formerrors={this.state.errors} />
 
           <form onSubmit={this.handleSubmit}>
             <div className="field">
-              <p className="control">
+              <p className="control has-icons-left">
                 <input
                   className="input"
-                  type="text"
-                  id="username"
-                  aria-describedby="userNameHelp"
-                  placeholder="Enter username"
-                  value={this.state.username}
-                  onChange={this.onInputChange}
-                />
-              </p>
-            </div>
-            <div className="field">
-              <p className="control has-icons-left has-icon-right">
-                <input
-                  className="input"
-                  type="email"
-                  id="email"
-                  aria-describedby="emailHelp"
-                  placeholder="Enter email"
-                  value={this.state.email}
+                  type="password"
+                  id="oldpassword"
+                  placeholder="Old password"
+                  value={this.state.oldpassword}
                   onChange={this.onInputChange}
                 />
                 <span className="icon is-small is-left">
-                  <i className="fas fa-envelope"></i>
+                  <i className="fas fa-lock"></i>
                 </span>
               </p>
             </div>
@@ -114,9 +92,9 @@ class Register extends Component {
                 <input
                   className="input"
                   type="password"
-                  id="password"
-                  placeholder="Password"
-                  value={this.state.password}
+                  id="newpassword"
+                  placeholder="New password"
+                  value={this.state.newpassword}
                   onChange={this.onInputChange}
                 />
                 <span className="icon is-small is-left">
@@ -141,7 +119,12 @@ class Register extends Component {
             </div>
             <div className="field">
               <p className="control">
-                <button className="button is-success">Register</button>
+                <a href="/forgotpassword">Forgot password?</a>
+              </p>
+            </div>
+            <div className="field">
+              <p className="control">
+                <button className="button is-success">Change password</button>
               </p>
             </div>
           </form>
@@ -150,9 +133,5 @@ class Register extends Component {
     );
   }
 }
-const mapDispatchToProps = dispatch => ({
-  userPostFetch: userInfo => dispatch(userPostFetch(userInfo))
-});
 
-export default Register;
-// export default connect(null, mapDispatchToProps)(Register);
+export default ChangePassword;
