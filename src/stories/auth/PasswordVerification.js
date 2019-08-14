@@ -6,6 +6,7 @@ import { Auth } from 'aws-amplify';
 class PasswordVerification extends Component {
   state = {
     verificationcode: '',
+    email: 'raoulkamela@outlook.com',
     newpassword: '',
     errors: {
       cognito: null,
@@ -41,8 +42,16 @@ class PasswordVerification extends Component {
         this.state.verificationcode,
         this.state.newpassword
       );
+      console.log(
+        Auth.forgotPasswordSubmit(
+          this.state.email,
+          this.state.verificationcode,
+          this.state.newpassword
+        )
+      );
       this.props.history.push('/confirmPasswordChange');
     } catch (error) {
+      console.log('reached error: ', error);
       console.log(error);
     }
   };
